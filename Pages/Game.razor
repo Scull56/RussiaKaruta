@@ -1,0 +1,57 @@
+@page "/game"
+
+@using System.Timers
+@using RussianKaruta.Data
+
+@implements IDisposable
+
+<NavLink href="/">Главное меню</NavLink>
+
+<div class="card">
+	<img src="@ImgSrc" />
+</div>
+
+@code{
+	private string ImgSrc { get; set; }
+
+	private Timer timer { get; set; }
+
+	private Card[] cards { get; set; }
+
+	private Random random { get; set; } = new Random();
+
+	private string[] values { get; set; } = new string[] { "ace", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "jack", "queen", "king" };
+
+	private string[] valuesName { get; set; } = new string[] { "туз", "двойка", "тройка", "четверка", "пятёрка", "шестёрка", "семёрка", "восьмёрка", "девятка", "десятка", "валет", "королева", "король" };
+
+	private string[] types { get; set; } = new string[] { "diamond", "spade", "cross", "heart" };
+
+	private string[] typesName { get; set; } = new string[] { "бубен", "пики", "крести", "черви" };
+
+	protected override void OnInitialized()
+	{
+		for (var i = 0; i < values.Length; i++)
+		{
+			for (var j = 0; j < types.Length; j++)
+			{
+				cards.Append(new Card(){ImgSrc = $"{values[i]}_{types[j]}.png", Name=$"{valuesName[i]} {typesName[j]}"});
+			}
+		}
+
+		timer = new();
+
+		timer.Interval = 3000;
+
+		timer.Elapsed += (_, _) => ImgSrc = cards[random.Next(0, cards.Length)].ImgSrc;
+
+		timer.Start();
+
+		base.OnInitialized();
+	}
+
+	public void Dispose()
+	{
+		timer.Stop();
+		timer.Dispose();
+	}
+}

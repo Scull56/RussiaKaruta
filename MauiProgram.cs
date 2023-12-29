@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using RussianKaruta.Data;
 
 namespace RussianKaruta
 {
@@ -12,17 +11,18 @@ namespace RussianKaruta
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts =>
                 {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                    fonts.AddFont("Roboto-Bold.ttf", "RobotoBold");
+                    fonts.AddFont("Roboto-Light.ttf", "RobotoLight");
+                    fonts.AddFont("Roboto-Regular.ttf", "RobotoBold");
+                    fonts.AddFont("YesevaOne-Regular.ttf", "YesevaOne");
                 });
 
             builder.Services.AddMauiBlazorWebView();
 
-#if DEBUG
-		builder.Services.AddBlazorWebViewDeveloperTools();
-		builder.Logging.AddDebug();
-#endif
-
-            builder.Services.AddSingleton<WeatherForecastService>();
+            #if DEBUG
+		            builder.Services.AddBlazorWebViewDeveloperTools();
+		            builder.Logging.AddDebug();
+            #endif
 
             return builder.Build();
         }
