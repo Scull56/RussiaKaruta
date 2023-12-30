@@ -1,6 +1,6 @@
 ﻿namespace RussianKaruta.Data
 {
-	public class Card
+	public struct Card
 	{
 		public string Name { get; set; }
 

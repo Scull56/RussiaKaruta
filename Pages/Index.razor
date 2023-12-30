@@ -1,7 +1,16 @@
 ﻿@page "/"
 
-<h1>Русская Карута</h1>
+<div class="d-flex flex-column justify-content-between h-100">
+	<h1 class="title">Русская Карута</h1>
 
-<NavLink href="game">Начать игру</NavLink>
-<NavLink href="rules">Как играть?</NavLink>
-<NavLink href="info">Инфо</NavLink>
+	<div class="mx-auto d-flex flex-column gap-3">
+		<NavLink class="btn btn-light btn-lg" href="game">Начать игру</NavLink>
+		<NavLink class="btn btn-light btn-lg" href="rules">Как играть?</NavLink>
+		<NavLink class="btn btn-light btn-lg" href="info">Информация</NavLink>
+	</div>
+
+	<div class="footer text-end">
+		Разработчик: Иноземцев Даниил (Scull56)
+	</div>
+</div>
+

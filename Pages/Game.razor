@@ -1,57 +1,234 @@
 @page "/game"
 
 @using System.Timers
+@using Microsoft.Extensions.Logging;
 @using RussianKaruta.Data
 
 @implements IDisposable
 
-<NavLink href="/">Главное меню</NavLink>
+@inject ILogger<Game> _logger;
 
-<div class="card">
-	<img src="@ImgSrc" />
+<div class="d-flex flex-column justify-content-between align-items-center h-100">
+	<NavLink class="btn btn-light btn-lg mb-3 w-100" href="/">Назад</NavLink>
+
+	@if (isStarted)
+	{
+		<div class="card-view mb-3">
+			<img src="@currentCard.ImgSrc" />
+			@if (!isChangePoints)
+			{
+				<div class="card-timer">@currentWaiting</div>
+			}
+		</div>
+		<div class="card-title">@currentCard.Name</div>
+	}
+	else
+	{
+		if (isEnd)
+		{
+			<h3>Победитель - игрок @(playerOneCards == 0 ? "слева" : "справа")</h3>
+		}
+
+		<button type="button" class="btn btn-light btn-lg" @onclick="@InitGame">@(isEnd ? "Начать заново" : "Старт")</button>
+	}
+
+	@if (isRemember)
+	{
+		<div class="timer">@timerRemember.ToString()</div>
+		<button type="button" class="btn btn-light btn-lg" @onclick="@StartGame">Начать игру</button>
+	}
+
+	<div class="d-flex justify-content-between w-100">
+		<div class="points d-flex flex-column align-items-center">
+			<div class="mb-2">@playerOneCards</div>
+			<button disabled="@(!isChangePoints)" class="btn btn-primary btn-lg" @onclick="() => ChangeCardsCount(1, 1)">+</button>
+			<button disabled="@(!isChangePoints)" class="btn btn-danger btn-lg" @onclick="() => ChangeCardsCount(1, -1)">-</button>
+		</div>
+		<button class="btn btn-light" @onclick="StartGame">Далее</button>
+		<div class="points d-flex flex-column align-items-center">
+			<div class="mb-2">@playerTwoCards</div>
+			<button disabled="@(!isChangePoints)" class="btn btn-primary btn-lg" @onclick="() => ChangeCardsCount(2, 1)">+</button>
+			<button disabled="@(!isChangePoints)" class="btn btn-danger btn-lg" @onclick="() => ChangeCardsCount(2, -1)">-</button>
+		</div>
+	</div>
 </div>
 
+
 @code{
-	private string ImgSrc { get; set; }
 
-	private Timer timer { get; set; }
+	// Page states
 
-	private Card[] cards { get; set; }
+	private bool isStarted { get; set; }
+
+	private bool isEnd { get; set; }
+
+	private bool isRemember { get; set; }
+
+
+
+	// Remember step
+
+	private TimeSpan maxRemberTime { get; set; } = new TimeSpan(0, 5, 0);
+
+	private TimeSpan rememberTime { get; set; }
+
+	private Timer timerRemember { get; set; } = new();
+
+
+
+	// Game step
+
+	private Card defaultCard = new Card() { ImgSrc = "images/shirt.png", Name = "" };
+
+	private Card currentCard { get; set; }
+
+	private List<Card> cards { get; set; }
+
+	private int totalWaiting = 5;
+
+	private int currentWaiting;
+
+	private Timer timerGame { get; set; } = new();
 
 	private Random random { get; set; } = new Random();
 
-	private string[] values { get; set; } = new string[] { "ace", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "jack", "queen", "king" };
 
-	private string[] valuesName { get; set; } = new string[] { "туз", "двойка", "тройка", "четверка", "пятёрка", "шестёрка", "семёрка", "восьмёрка", "девятка", "десятка", "валет", "королева", "король" };
 
-	private string[] types { get; set; } = new string[] { "diamond", "spade", "cross", "heart" };
+	// Players state
 
-	private string[] typesName { get; set; } = new string[] { "бубен", "пики", "крести", "черви" };
+	private int playerOneCards { get; set; }
+
+	private int playerTwoCards { get; set; }
+
+	private bool isChangePoints { get; set; }
+
+
+
+	// Features
+
+	private void InitGame()
+	{
+		// Page state
+		isStarted = false;
+		isEnd = false;
+
+		// Cards init
+		cards = (List<Card>)CardsInitializer.GetCards();
+
+		// Players state
+		playerOneCards = cards.Count() / 2;
+		playerTwoCards = playerOneCards;
+		isChangePoints = false;
+
+		// Remember step
+		rememberTime = maxRemberTime;
+		timerRemember.Start();
+	}
+
+	private void StartGame()
+	{
+		if (playerOneCards == 0 || playerOneCards == 0)
+		{
+			isStarted = false;
+			isEnd = true;
+
+			return;
+		}
+
+		// init page state
+		isStarted = true;
+
+		// init waiting step view
+		currentCard = defaultCard;
+		currentWaiting = totalWaiting;
+
+		// disalow change points before open card
+		isChangePoints = false;
+
+		// start waiting
+		timerGame.Start();
+	}
+
+
+
+	// Lifecycle
 
 	protected override void OnInitialized()
 	{
-		for (var i = 0; i < values.Length; i++)
+		_logger?.Log(LogLevel.Information, "Init page Game");
+
+		timerGame.Interval = 1000;
+
+		timerGame.Elapsed += async (_, _) =>
 		{
-			for (var j = 0; j < types.Length; j++)
+			if (currentWaiting > 0)
 			{
-				cards.Append(new Card(){ImgSrc = $"{values[i]}_{types[j]}.png", Name=$"{valuesName[i]} {typesName[j]}"});
+				currentWaiting--;
 			}
-		}
+			else
+			{
+				var index = random.Next(0, cards.Count());
 
-		timer = new();
+				currentCard = cards[index];
 
-		timer.Interval = 3000;
+				cards.RemoveAt(index);
 
-		timer.Elapsed += (_, _) => ImgSrc = cards[random.Next(0, cards.Length)].ImgSrc;
+				isChangePoints = true;
 
-		timer.Start();
+				timerGame.Stop();
+			}
+
+			await InvokeAsync(StateHasChanged);
+		};
+
+		timerRemember.Interval = 1000;
+
+		timerRemember.Elapsed += async (_, _) =>
+		{
+			if (rememberTime.TotalSeconds == 0)
+			{
+				StartGame();
+			}
+			else
+			{
+				rememberTime = rememberTime.Negate()
+			}
+
+			await InvokeAsync(StateHasChanged);
+		};
 
 		base.OnInitialized();
 	}
 
+
+
+	// Calbacks
+
+	private void ChangeCardsCount(int playerNumber, int count)
+	{
+		if (playerNumber == 1 && playerOneCards + count >= 0)
+		{
+			playerOneCards += count;
+			playerTwoCards -= count;
+		}
+
+		if (playerNumber == 2 && playerTwoCards + count >= 0)
+		{
+			playerTwoCards += count;
+			playerOneCards -= count;
+		}
+	}
+
+
+
+	// Dispose
+
 	public void Dispose()
 	{
-		timer.Stop();
-		timer.Dispose();
+		timerGame.Stop();
+		timerGame.Dispose();
+
+		timerRemember.Stop();
+		timerRemember.Dispose();
 	}
 }
