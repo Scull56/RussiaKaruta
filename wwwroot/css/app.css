@@ -1,16 +1,18 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 @import url('fonts.css');
+@import url('spinner.css');
 
 :root {
     --color-l: #ffffff;
     --color-d: #292929;
     --accent-d: #0c6339;
-
+    --font-text: 'Roboto', sans-serif;
+    --font-decorate: "YesevaOne", serif;
     font-size: 14px;
 }
 
 html, body {
-    font-family: 'Roboto', sans-serif;
+    font-family: var(--font-text);
     font-weight: 500;
     font-size: 1rem;
     color: var(--color-l);
@@ -21,6 +23,18 @@ html, body {
 
 #app{
     height: 100%;
+    position: relative;
+}
+
+.loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.btn{
+    border-radius: 0px;
 }
 
 a{

@@ -1,6 +1,6 @@
 .title {
     text-align: center;
-    font-family: "YesevaOne";
+    font-family: var(--font-decorate);
     margin-top: 20px;
     font-size: 5.5rem;
 }

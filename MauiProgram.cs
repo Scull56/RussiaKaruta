@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using CommunityToolkit.Maui;
 
 namespace RussianKaruta
 {
@@ -9,7 +10,8 @@ namespace RussianKaruta
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
-                .ConfigureFonts(fonts =>
+				.UseMauiCommunityToolkitMediaElement()
+				.ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("Roboto-Bold.ttf", "RobotoBold");
                     fonts.AddFont("Roboto-Light.ttf", "RobotoLight");

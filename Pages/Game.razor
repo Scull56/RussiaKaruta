@@ -9,7 +9,7 @@
 @inject ILogger<Game> _logger;
 
 <div class="d-flex flex-column justify-content-between align-items-center h-100">
-	<NavLink class="btn btn-light btn-lg mb-3 w-100" href="/">Назад</NavLink>
+	<NavLink class="btn btn-light btn-lg mb-3 align-self-start" href="/">Назад</NavLink>
 
 	@if (isStarted)
 	{
@@ -26,29 +26,39 @@
 	{
 		if (isEnd)
 		{
-			<h3>Победитель - игрок @(playerOneCards == 0 ? "слева" : "справа")</h3>
+			<h2>Победитель - игрок @(playerOneCards == 0 ? "слева" : "справа")</h2>
 		}
 
-		<button type="button" class="btn btn-light btn-lg" @onclick="@InitGame">@(isEnd ? "Начать заново" : "Старт")</button>
+		if (!isRemember)
+		{
+			<button type="button" class="btn btn-light btn-lg" @onclick="@InitGame">@(isEnd ? "Начать заново" : "Старт")</button>
+		}
 	}
 
 	@if (isRemember)
 	{
-		<div class="timer">@timerRemember.ToString()</div>
+		<div class="timer">@(rememberTime.ToString())</div>
 		<button type="button" class="btn btn-light btn-lg" @onclick="@StartGame">Начать игру</button>
 	}
 
-	<div class="d-flex justify-content-between w-100">
+	<div class="d-flex justify-content-between align-items-end w-100">
 		<div class="points d-flex flex-column align-items-center">
 			<div class="mb-2">@playerOneCards</div>
-			<button disabled="@(!isChangePoints)" class="btn btn-primary btn-lg" @onclick="() => ChangeCardsCount(1, 1)">+</button>
-			<button disabled="@(!isChangePoints)" class="btn btn-danger btn-lg" @onclick="() => ChangeCardsCount(1, -1)">-</button>
+			<div class="btn-group">
+				<button disabled="@(!isChangePoints)" class="btn btn-primary btn-lg" @onclick="() => ChangeCardsCount(1, 1)">+</button>
+				<button disabled="@(!isChangePoints)" class="btn btn-danger btn-lg" @onclick="() => ChangeCardsCount(1, -1)">-</button>
+			</div>
 		</div>
-		<button class="btn btn-light" @onclick="StartGame">Далее</button>
+		@if (isChangePoints && !isEnd)
+		{
+			<button disabled="@(!isChangedPoints)" class="btn btn-light btn-lg" @onclick="StartGame">Далее</button>
+		}
 		<div class="points d-flex flex-column align-items-center">
 			<div class="mb-2">@playerTwoCards</div>
-			<button disabled="@(!isChangePoints)" class="btn btn-primary btn-lg" @onclick="() => ChangeCardsCount(2, 1)">+</button>
-			<button disabled="@(!isChangePoints)" class="btn btn-danger btn-lg" @onclick="() => ChangeCardsCount(2, -1)">-</button>
+			<div class="btn-group">
+				<button disabled="@(!isChangePoints)" class="btn btn-primary btn-lg" @onclick="() => ChangeCardsCount(2, 1)">+</button>
+				<button disabled="@(!isChangePoints)" class="btn btn-danger btn-lg" @onclick="() => ChangeCardsCount(2, -1)">-</button>
+			</div>
 		</div>
 	</div>
 </div>
@@ -68,7 +78,7 @@
 
 	// Remember step
 
-	private TimeSpan maxRemberTime { get; set; } = new TimeSpan(0, 5, 0);
+	private TimeSpan maxRememberTime { get; set; } = new TimeSpan(0, 5, 0);
 
 	private TimeSpan rememberTime { get; set; }
 
@@ -102,6 +112,7 @@
 
 	private bool isChangePoints { get; set; }
 
+	private bool isChangedPoints { get; set; }
 
 
 	// Features
@@ -121,39 +132,48 @@
 		isChangePoints = false;
 
 		// Remember step
-		rememberTime = maxRemberTime;
+		isRemember = true;
+		rememberTime = maxRememberTime;
 		timerRemember.Start();
 	}
 
 	private void StartGame()
 	{
-		if (playerOneCards == 0 || playerOneCards == 0)
+		if (playerOneCards == 0 || playerTwoCards == 0)
 		{
 			isStarted = false;
 			isEnd = true;
+
+			isChangePoints = false;
 
 			return;
 		}
 
 		// init page state
 		isStarted = true;
+		isRemember = false;
 
 		// init waiting step view
 		currentCard = defaultCard;
 		currentWaiting = totalWaiting;
 
-		// disalow change points before open card
+		// disallow change points before open card
 		isChangePoints = false;
+		isChangedPoints = false;
 
 		// start waiting
 		timerGame.Start();
 	}
 
+	private SpeechOptions options { get; set; }
+
+	//private async void Speak(string text) => ;
+
 
 
 	// Lifecycle
 
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
 	{
 		_logger?.Log(LogLevel.Information, "Init page Game");
 
@@ -176,6 +196,8 @@
 				isChangePoints = true;
 
 				timerGame.Stop();
+
+				//Speak(currentCard.Name);
 			}
 
 			await InvokeAsync(StateHasChanged);
@@ -191,13 +213,13 @@
 			}
 			else
 			{
-				rememberTime = rememberTime.Negate()
+				rememberTime = rememberTime.Subtract(new TimeSpan(0, 0, 1));
 			}
 
 			await InvokeAsync(StateHasChanged);
 		};
 
-		base.OnInitialized();
+		await base.OnInitializedAsync();
 	}
 
 
@@ -207,16 +229,12 @@
 	private void ChangeCardsCount(int playerNumber, int count)
 	{
 		if (playerNumber == 1 && playerOneCards + count >= 0)
-		{
 			playerOneCards += count;
-			playerTwoCards -= count;
-		}
-
+		
 		if (playerNumber == 2 && playerTwoCards + count >= 0)
-		{
 			playerTwoCards += count;
-			playerOneCards -= count;
-		}
+
+		isChangedPoints = true;
 	}
 
 

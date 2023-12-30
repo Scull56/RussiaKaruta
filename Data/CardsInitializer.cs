@@ -8,7 +8,7 @@
 
 		private static string[] types { get; set; } = new string[] { "diamond", "spade", "cross", "heart" };
 
-		private static string[] typesName { get; set; } = new string[] { "бубен", "пики", "крести", "черви" };
+		private static string[] typesName { get; set; } = new string[] { "буби", "пики", "крести", "черви" };
 
 		private static List<Card> Cards = new List<Card>();
 

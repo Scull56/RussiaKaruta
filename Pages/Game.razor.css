@@ -30,5 +30,16 @@
 
 .points {
     font-size: 2rem;
-    font-family: "YesevaOne";
+    font-family: var(--font-decorate);
+}
+
+.points .btn-group .btn{
+    font-size: 3rem;
+    font-weight: 700;
+    font-family: var(--font-text);
+}
+
+.timer {
+    font-family: var(--font-decorate);
+    font-size: 4rem;
 }
