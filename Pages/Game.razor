@@ -51,7 +51,7 @@
 		</div>
 		@if (isChangePoints && !isEnd)
 		{
-			<button disabled="@(!isChangedPoints)" class="btn btn-light btn-lg" @onclick="StartGame">Далее</button>
+			<button disabled="@(!isChangedPoints)" class="btn btn-light btn-lg" @onclick="PlayGame">Далее</button>
 		}
 		<div class="points d-flex flex-column align-items-center">
 			<div class="mb-2">@playerTwoCards</div>
@@ -63,10 +63,11 @@
 	</div>
 </div>
 
+<audio autoplay src="@audioSrc"></audio>
 
 @code{
 
-	// Page states
+	// Page state
 
 	private bool isStarted { get; set; }
 
@@ -74,9 +75,11 @@
 
 	private bool isRemember { get; set; }
 
+	private string audioSrc { get; set; }
 
 
-	// Remember step
+
+	// Remember state
 
 	private TimeSpan maxRememberTime { get; set; } = new TimeSpan(0, 5, 0);
 
@@ -86,11 +89,13 @@
 
 
 
-	// Game step
+	// Game state
 
 	private Card defaultCard = new Card() { ImgSrc = "images/shirt.png", Name = "" };
 
 	private Card currentCard { get; set; }
+
+	private int currentCardIndex { get; set; }
 
 	private List<Card> cards { get; set; }
 
@@ -115,13 +120,15 @@
 	private bool isChangedPoints { get; set; }
 
 
-	// Features
+
+	// Steps initializers
 
 	private void InitGame()
 	{
 		// Page state
 		isStarted = false;
 		isEnd = false;
+		isRemember = true;
 
 		// Cards init
 		cards = (List<Card>)CardsInitializer.GetCards();
@@ -130,28 +137,46 @@
 		playerOneCards = cards.Count() / 2;
 		playerTwoCards = playerOneCards;
 		isChangePoints = false;
+		isChangedPoints = false;
 
 		// Remember step
-		isRemember = true;
 		rememberTime = maxRememberTime;
 		timerRemember.Start();
 	}
 
-	private void StartGame()
+	private async void RememberStateChange(object? sender, ElapsedEventArgs e)
 	{
-		if (playerOneCards == 0 || playerTwoCards == 0)
+		if (rememberTime.TotalSeconds == 0)
 		{
-			isStarted = false;
-			isEnd = true;
-
-			isChangePoints = false;
-
-			return;
+			StartGame();
+		}
+		else
+		{
+			rememberTime = rememberTime.Subtract(new TimeSpan(0, 0, 1));
 		}
 
+		await InvokeAsync(StateHasChanged);
+	}
+
+	private void StartGame()
+	{
 		// init page state
 		isStarted = true;
 		isRemember = false;
+
+		timerRemember.Stop();
+
+		PlayGame();
+	}
+
+	private void PlayGame()
+	{
+		if (playerOneCards == 0 || playerTwoCards == 0)
+		{
+			EndGame();
+
+			return;
+		}
 
 		// init waiting step view
 		currentCard = defaultCard;
@@ -165,9 +190,43 @@
 		timerGame.Start();
 	}
 
-	private SpeechOptions options { get; set; }
+	private async void GameStateChange(object? sender, ElapsedEventArgs e)
+	{
+		if (currentWaiting > 0)
+		{
+			currentWaiting--;
 
-	//private async void Speak(string text) => ;
+			if (currentWaiting == 0)
+			{
+				currentCardIndex = random.Next(0, cards.Count());
+
+				audioSrc = cards[currentCardIndex].AudioSrc;
+			}
+		}
+		else
+		{
+			currentCard = cards[currentCardIndex];
+
+			cards.RemoveAt(currentCardIndex);
+
+			isChangePoints = true;
+
+			timerGame.Stop();
+		}
+
+		await InvokeAsync(StateHasChanged);
+	}
+
+	private void EndGame()
+	{
+		isStarted = false;
+		isEnd = true;
+		isChangePoints = false;
+
+		audioSrc = playerOneCards == 0 ? "audio/winner_left.mp3" : "audio/winner_right.mp3";
+	}
+
+	
 
 
 
@@ -179,45 +238,11 @@
 
 		timerGame.Interval = 1000;
 
-		timerGame.Elapsed += async (_, _) =>
-		{
-			if (currentWaiting > 0)
-			{
-				currentWaiting--;
-			}
-			else
-			{
-				var index = random.Next(0, cards.Count());
-
-				currentCard = cards[index];
-
-				cards.RemoveAt(index);
-
-				isChangePoints = true;
-
-				timerGame.Stop();
-
-				//Speak(currentCard.Name);
-			}
-
-			await InvokeAsync(StateHasChanged);
-		};
+		timerGame.Elapsed += GameStateChange;
 
 		timerRemember.Interval = 1000;
 
-		timerRemember.Elapsed += async (_, _) =>
-		{
-			if (rememberTime.TotalSeconds == 0)
-			{
-				StartGame();
-			}
-			else
-			{
-				rememberTime = rememberTime.Subtract(new TimeSpan(0, 0, 1));
-			}
-
-			await InvokeAsync(StateHasChanged);
-		};
+		timerRemember.Elapsed += RememberStateChange;
 
 		await base.OnInitializedAsync();
 	}

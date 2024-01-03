@@ -1,7 +1,4 @@
-﻿using CommunityToolkit.Maui;
-using CommunityToolkit.Maui.Views;
-
-namespace RussianKaruta
+﻿namespace RussianKaruta
 {
     public partial class MainPage : ContentPage
     {
@@ -9,5 +6,5 @@ namespace RussianKaruta
         {
             InitializeComponent();
         }
-    }
+	}
 }

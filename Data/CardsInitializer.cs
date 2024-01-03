@@ -18,7 +18,11 @@
 			{
 				for (var j = 0; j < types.Length; j++)
 				{
-					Cards.Add(new Card() { ImgSrc = $"images/{values[i]}_{types[j]}.png", Name = $"{valuesName[i]} {typesName[j]}" });
+					Cards.Add(new Card() {
+						Name = $"{valuesName[i]} {typesName[j]}",
+						ImgSrc = $"images/cards/{values[i]}_{types[j]}.png", 
+						AudioSrc = $"audio/{values[i]}_{types[j]}.mp3"
+					});
 				}
 			}
 		}

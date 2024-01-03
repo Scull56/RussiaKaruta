@@ -38,11 +38,9 @@
     <ItemGroup>
         <!-- App Icon -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg" Color="#0c6339" />
-		<!--<MauiIcon Include="Resources\AppIcon\appicon.png" />-->
 
         <!-- Splash Screen -->
         <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#0c6339" BaseSize="128,128" />
-		<!--<MauiSplashScreen Include="Resources\Splash\splash.png" />-->
 
         <!-- Images -->
         <MauiImage Include="Resources\Images\*" />
@@ -55,7 +53,6 @@
     </ItemGroup>
 	
     <ItemGroup>
-        <PackageReference Include="CommunityToolkit.Maui.MediaElement" Version="2.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
     </ItemGroup>
 
