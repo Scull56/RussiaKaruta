@@ -15,7 +15,7 @@
 	{
 		<div class="card-view mb-3">
 			<img src="@currentCard.ImgSrc" />
-			@if (!isChangePoints)
+			@if (!isIncrementPoints && !isDecrementPoints)
 			{
 				<div class="card-timer">@currentWaiting</div>
 			}
@@ -45,19 +45,19 @@
 		<div class="points d-flex flex-column align-items-center">
 			<div class="mb-2">@playerOneCards</div>
 			<div class="btn-group">
-				<button disabled="@(!isChangePoints)" class="btn btn-primary btn-lg" @onclick="() => ChangeCardsCount(1, 1)">+</button>
-				<button disabled="@(!isChangePoints)" class="btn btn-danger btn-lg" @onclick="() => ChangeCardsCount(1, -1)">-</button>
+				<button disabled="@(!isIncrementPoints)" class="btn btn-primary btn-lg" @onclick="() => ChangeCardsCount(1, 1)">+</button>
+				<button disabled="@(!isDecrementPoints)" class="btn btn-danger btn-lg" @onclick="() => ChangeCardsCount(1, -1)">-</button>
 			</div>
 		</div>
-		@if (isChangePoints && !isEnd)
+		@if (isNextReady)
 		{
-			<button disabled="@(!isChangedPoints)" class="btn btn-light btn-lg" @onclick="PlayGame">Далее</button>
+			<button disabled="@(playerOneCards + playerTwoCards != cards.Count())" class="btn btn-light btn-lg" @onclick="PlayGame">Далее</button>
 		}
 		<div class="points d-flex flex-column align-items-center">
 			<div class="mb-2">@playerTwoCards</div>
 			<div class="btn-group">
-				<button disabled="@(!isChangePoints)" class="btn btn-primary btn-lg" @onclick="() => ChangeCardsCount(2, 1)">+</button>
-				<button disabled="@(!isChangePoints)" class="btn btn-danger btn-lg" @onclick="() => ChangeCardsCount(2, -1)">-</button>
+				<button disabled="@(!isIncrementPoints)" class="btn btn-primary btn-lg" @onclick="() => ChangeCardsCount(2, 1)">+</button>
+				<button disabled="@(!isDecrementPoints)" class="btn btn-danger btn-lg" @onclick="() => ChangeCardsCount(2, -1)">-</button>
 			</div>
 		</div>
 	</div>
@@ -74,6 +74,8 @@
 	private bool isEnd { get; set; }
 
 	private bool isRemember { get; set; }
+
+	private bool isNextReady { get; set; }
 
 	private string audioSrc { get; set; }
 
@@ -115,9 +117,9 @@
 
 	private int playerTwoCards { get; set; }
 
-	private bool isChangePoints { get; set; }
+	private bool isIncrementPoints { get; set; }
 
-	private bool isChangedPoints { get; set; }
+	private bool isDecrementPoints { get; set; }
 
 
 
@@ -136,8 +138,9 @@
 		// Players state
 		playerOneCards = cards.Count() / 2;
 		playerTwoCards = playerOneCards;
-		isChangePoints = false;
-		isChangedPoints = false;
+		isIncrementPoints = false;
+		isDecrementPoints = false;
+		isNextReady = false;
 
 		// Remember step
 		rememberTime = maxRememberTime;
@@ -183,8 +186,9 @@
 		currentWaiting = totalWaiting;
 
 		// disallow change points before open card
-		isChangePoints = false;
-		isChangedPoints = false;
+		isIncrementPoints = false;
+		isDecrementPoints = false;
+		isNextReady = false;
 
 		// start waiting
 		timerGame.Start();
@@ -209,7 +213,9 @@
 
 			cards.RemoveAt(currentCardIndex);
 
-			isChangePoints = true;
+			isDecrementPoints = true;
+
+			isNextReady = true;
 
 			timerGame.Stop();
 		}
@@ -221,12 +227,12 @@
 	{
 		isStarted = false;
 		isEnd = true;
-		isChangePoints = false;
+		isNextReady = false;
+		isIncrementPoints = false;
+		isDecrementPoints = false;
 
 		audioSrc = playerOneCards == 0 ? "audio/winner_left.mp3" : "audio/winner_right.mp3";
 	}
-
-	
 
 
 
@@ -253,13 +259,19 @@
 
 	private void ChangeCardsCount(int playerNumber, int count)
 	{
-		if (playerNumber == 1 && playerOneCards + count >= 0)
-			playerOneCards += count;
-		
-		if (playerNumber == 2 && playerTwoCards + count >= 0)
-			playerTwoCards += count;
+		int nextCount = playerOneCards + playerTwoCards + count;
 
-		isChangedPoints = true;
+		if (nextCount >= cards.Count() - 1 && nextCount <= cards.Count() )
+		{
+			if (playerNumber == 1 && playerOneCards + count >= 0)
+				playerOneCards += count;
+
+			if (playerNumber == 2 && playerTwoCards + count >= 0)
+				playerTwoCards += count;
+
+			isDecrementPoints = nextCount > cards.Count() - 1;
+			isIncrementPoints = nextCount < cards.Count();
+		}
 	}
 
 

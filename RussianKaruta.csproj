@@ -53,14 +53,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="docs\positions.png" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Content Include="docs\positions.png">
-        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      </Content>
+      <None Remove="docs" />
     </ItemGroup>
 	
     <ItemGroup>
