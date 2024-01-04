@@ -90,3 +90,9 @@ dotnet restore
 + [для Android](https://learn.microsoft.com/ru-ru/dotnet/maui/android/emulator/?view=net-maui-7.0)
 
 Сборка проекта под разные операционные системы осуществляется в соответствии с официальной документацией [.NET Maui](https://learn.microsoft.com/ru-ru/dotnet/maui/deployment/?view=net-maui-7.0).
+
+## Информация об авторах
++ ** Разработчик: **  [Иноземцев Даниил (Scull56)](https://github.com/Scull56)
++ ** Дизайнер карточек: **  [Macrovector / Freepik](http://www.freepik.com)
++ ** Дизайнеры шрифта Yeseva: **  [Jovanny Lemonad](https://fonts.google.com/?query=Jovanny+Lemonad)
++ ** Дизайнеры шрифта Roboto: **  [Christian Robertson](https://fonts.google.com/?query=Christian+Robertson)
