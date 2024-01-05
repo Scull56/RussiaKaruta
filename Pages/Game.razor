@@ -6,6 +6,7 @@
 
 @implements IDisposable
 
+@inject IJSRuntime _js;
 @inject ILogger<Game> _logger;
 
 <div class="d-flex flex-column justify-content-between align-items-center h-100">
@@ -63,7 +64,7 @@
 	</div>
 </div>
 
-<audio autoplay src="@audioSrc"></audio>
+<audio @ref="audioElement" autoplay src="@audioSrc"></audio>
 
 @code{
 
@@ -76,6 +77,12 @@
 	private bool isRemember { get; set; }
 
 	private bool isNextReady { get; set; }
+
+
+
+	// Audio
+
+	private ElementReference audioElement { get; set; }
 
 	private string audioSrc { get; set; }
 
@@ -253,6 +260,18 @@
 		timerRemember.Elapsed += RememberStateChange;
 
 		await base.OnInitializedAsync();
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender && _js != null)
+		{
+			var jsModule = await _js.InvokeAsync<IJSObjectReference>("import", "./Pages/Game.razor.js");
+
+			await jsModule.InvokeVoidAsync("InitAudioPlay", audioElement);
+		}
+
+		base.OnAfterRender(firstRender);
 	}
 
 

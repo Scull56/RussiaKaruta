@@ -94,5 +94,5 @@ dotnet restore
 ## Информация об авторах
 + **Разработчик:**  [Иноземцев Даниил (Scull56)](https://github.com/Scull56)
 + **Дизайнер карточек:**  [Macrovector / Freepik](http://www.freepik.com)
-+ **Дизайнеры шрифта Yeseva:**  [Jovanny Lemonad](https://fonts.google.com/?query=Jovanny+Lemonad)
-+ **Дизайнеры шрифта Roboto:**  [Christian Robertson](https://fonts.google.com/?query=Christian+Robertson)
++ **Дизайнер шрифта Yeseva:**  [Jovanny Lemonad](https://fonts.google.com/?query=Jovanny+Lemonad)
++ **Дизайнер шрифта Roboto:**  [Christian Robertson](https://fonts.google.com/?query=Christian+Robertson)
