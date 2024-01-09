@@ -1,4 +1,4 @@
-﻿namespace RussianKaruta.Data
+﻿namespace RussiaKaruta.Data
 {
 	public static class CardsInitializer
 	{

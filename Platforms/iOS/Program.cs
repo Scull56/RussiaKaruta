@@ -1,7 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
-namespace RussianKaruta
+namespace RussiaKaruta
 {
     public class Program
     {

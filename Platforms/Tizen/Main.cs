@@ -2,7 +2,7 @@ using Microsoft.Maui;
 using Microsoft.Maui.Hosting;
 using System;
 
-namespace RussianKaruta
+namespace RussiaKaruta
 {
     internal class Program : MauiApplication
     {

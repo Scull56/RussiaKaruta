@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Runtime;
 
-namespace RussianKaruta
+namespace RussiaKaruta
 {
     [Application]
     public class MainApplication : MauiApplication

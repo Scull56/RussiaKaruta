@@ -1,4 +1,4 @@
-﻿namespace RussianKaruta
+﻿namespace RussiaKaruta
 {
     public partial class MainPage : ContentPage
     {

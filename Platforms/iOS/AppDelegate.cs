@@ -1,6 +1,6 @@
 ﻿using Foundation;
 
-namespace RussianKaruta
+namespace RussiaKaruta
 {
     [Register("AppDelegate")]
     public class AppDelegate : MauiUIApplicationDelegate

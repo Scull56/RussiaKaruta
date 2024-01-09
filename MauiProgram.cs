@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace RussianKaruta
+namespace RussiaKaruta
 {
     public static class MauiProgram
     {
@@ -14,12 +14,7 @@ namespace RussianKaruta
                     fonts.AddFont("Roboto-Bold.ttf", "RobotoBold");
                     fonts.AddFont("Roboto-Light.ttf", "RobotoLight");
                     fonts.AddFont("Roboto-Regular.ttf", "RobotoBold");
-                    fonts.AddFont("YesevaOne-Regular.ttf", "YesevaOne");
-                })
-				.ConfigureEssentials(essentials =>
-				{
-					essentials.UseVersionTracking();
-				});
+                });
 
             builder.Services.AddMauiBlazorWebView();
 
