@@ -1,4 +1,4 @@
-@page "/game"
+п»ї@page "/game"
 
 @using System.Timers
 @using Microsoft.Extensions.Logging;
@@ -6,11 +6,10 @@
 
 @implements IDisposable
 
-@inject IJSRuntime _js;
 @inject ILogger<Game> _logger;
 
 <div class="d-flex flex-column justify-content-between align-items-center h-100">
-	<NavLink class="btn btn-light btn-lg mb-3 align-self-start" href="/">Назад</NavLink>
+	<NavLink class="btn btn-light btn-lg mb-3 align-self-start" href="/">РќР°Р·Р°Рґ</NavLink>
 
 	@if (isStarted)
 	{
@@ -27,19 +26,19 @@
 	{
 		if (isEnd)
 		{
-			<h2>Победитель - игрок @(playerOneCards == 0 ? "слева" : "справа")</h2>
+			<h2>РџРѕР±РµРґРёС‚РµР»СЊ - РёРіСЂРѕРє @(playerOneCards == 0 ? "СЃР»РµРІР°" : "СЃРїСЂР°РІР°")</h2>
 		}
 
 		if (!isRemember)
 		{
-			<button type="button" class="btn btn-light btn-lg" @onclick="@InitGame">@(isEnd ? "Начать заново" : "Старт")</button>
+			<button type="button" class="btn btn-light btn-lg" @onclick="@InitGame">@(isEnd ? "РќР°С‡Р°С‚СЊ Р·Р°РЅРѕРІРѕ" : "РЎС‚Р°СЂС‚")</button>
 		}
 	}
 
 	@if (isRemember)
 	{
 		<div class="timer">@(rememberTime.ToString())</div>
-		<button type="button" class="btn btn-light btn-lg" @onclick="@StartGame">Начать игру</button>
+		<button type="button" class="btn btn-light btn-lg" @onclick="@StartGame">РќР°С‡Р°С‚СЊ РёРіСЂСѓ</button>
 	}
 
 	<div class="d-flex justify-content-between align-items-end w-100">
@@ -52,7 +51,7 @@
 		</div>
 		@if (isNextReady)
 		{
-			<button disabled="@(playerOneCards + playerTwoCards != cards.Count())" class="btn btn-light btn-lg" @onclick="PlayGame">Далее</button>
+			<button disabled="@(playerOneCards + playerTwoCards != cards.Count())" class="btn btn-light btn-lg" @onclick="PlayGame">Р”Р°Р»РµРµ</button>
 		}
 		<div class="points d-flex flex-column align-items-center">
 			<div class="mb-2">@playerTwoCards</div>
@@ -64,7 +63,9 @@
 	</div>
 </div>
 
-<audio @ref="audioElement" autoplay src="@audioSrc"></audio>
+<audio src="@audioSrc" autoplay oncanplaythrough="this.play()"></audio>
+
+
 
 @code{
 
@@ -82,15 +83,13 @@
 
 	// Audio
 
-	private ElementReference audioElement { get; set; }
-
-	private string audioSrc { get; set; }
+	private string audioSrc { get; set; } = "audio/empty.mp3";
 
 
 
 	// Remember state
 
-	private TimeSpan maxRememberTime { get; set; } = new TimeSpan(0, 5, 0);
+	private TimeSpan maxRememberTime { get; set; } = new TimeSpan(0, 0, 10);
 
 	private TimeSpan rememberTime { get; set; }
 
@@ -158,7 +157,7 @@
 	{
 		if (rememberTime.TotalSeconds == 0)
 		{
-			StartGame();
+			await InvokeAsync(StartGame);
 		}
 		else
 		{
@@ -243,7 +242,7 @@
 		audioSrc = playerOneCards == 0 ? "audio/winner_left.mp3" : "audio/winner_right.mp3";
 	}
 
-
+	
 
 	// Lifecycle
 
@@ -260,18 +259,6 @@
 		timerRemember.Elapsed += RememberStateChange;
 
 		await base.OnInitializedAsync();
-	}
-
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender && _js != null)
-		{
-			var jsModule = await _js.InvokeAsync<IJSObjectReference>("import", "./Pages/Game.razor.js");
-
-			await jsModule.InvokeVoidAsync("InitAudioPlay", audioElement);
-		}
-
-		base.OnAfterRender(firstRender);
 	}
 
 
